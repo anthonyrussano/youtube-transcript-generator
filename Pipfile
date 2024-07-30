@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-rshell = "*"
 google-api-python-client = "*"
 youtube-transcript-api = "*"
+unidecode = "*"
 
 [dev-packages]
 
