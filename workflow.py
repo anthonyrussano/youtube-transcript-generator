@@ -7,18 +7,11 @@ import re
 from unidecode import unidecode
 
 def get_api_key():
-    """
-    Read the API key from the environment variable.
-    """
     return os.environ.get('YOUTUBE_API_KEY')
 
-# Initialize YouTube API client
 youtube = build("youtube", "v3", developerKey=get_api_key())
 
 def get_video_id_from_url(url):
-    """
-    Extract the video ID from a YouTube URL.
-    """
     patterns = [
         r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
         r"(?:embed\/|v\/|youtu\.be\/)([0-9A-Za-z_-]{11})",
@@ -31,9 +24,6 @@ def get_video_id_from_url(url):
     return None
 
 def get_video_title(video_id):
-    """
-    Get the title of a YouTube video using its ID.
-    """
     try:
         request = youtube.videos().list(part="snippet", id=video_id)
         response = request.execute()
@@ -44,9 +34,6 @@ def get_video_title(video_id):
     return None
 
 def get_transcript(video_id):
-    """
-    Get the transcript of a YouTube video using its ID.
-    """
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         formatter = TextFormatter()
@@ -56,9 +43,6 @@ def get_transcript(video_id):
         return None
 
 def slugify(text):
-    """
-    Convert text to a URL-friendly slug.
-    """
     text = unidecode(text)
     text = text.lower()
     text = re.sub(r"[^a-z0-9]+", "-", text)
@@ -66,9 +50,6 @@ def slugify(text):
     return text
 
 def save_transcript_to_file(title, transcript):
-    """
-    Save the transcript to a text file in the 'transcripts' folder using a slugified filename.
-    """
     os.makedirs("transcripts", exist_ok=True)
     slugified_title = slugify(title)
     filename = f"transcripts/{slugified_title}.txt"
@@ -76,8 +57,10 @@ def save_transcript_to_file(title, transcript):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(transcript)
         print(f"Transcript saved to {filename}")
+        return True
     except Exception as e:
         print(f"Error saving transcript: {e}")
+        return False
 
 def main():
     parser = argparse.ArgumentParser(description="YouTube Video Transcript Extractor")
@@ -102,9 +85,15 @@ def main():
 
     transcript = get_transcript(video_id)
     if transcript:
-        save_transcript_to_file(title, transcript)
+        if save_transcript_to_file(title, transcript):
+            print("Transcript extracted and saved successfully.")
+        else:
+            print("Failed to save transcript.")
     else:
         print("Could not retrieve video transcript")
+        # Create an empty file to indicate that we attempted to get the transcript
+        with open("transcripts/.no_transcript", "w") as f:
+            f.write(f"No transcript available for video: {args.url}")
 
 if __name__ == "__main__":
     main()
