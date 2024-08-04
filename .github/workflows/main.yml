@@ -26,7 +26,7 @@ jobs:
         pip install google-api-python-client youtube_transcript_api unidecode
     - name: Run transcript extractor
       env:
-        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        YOUTUBE_API_KEY: ${{ secrets.API_KEY }}
       run: python workflow.py "${{ github.event.inputs.video_url }}"
     - name: Commit and push changes
       run: |
