@@ -26,12 +26,16 @@ jobs:
         pip install google-api-python-client youtube_transcript_api unidecode
     - name: Run transcript extractor
       env:
-        YOUTUBE_API_KEY: ${{ secrets.API_KEY }}
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       run: python workflow.py "${{ github.event.inputs.video_url }}"
-    - name: Commit and push transcript
+    - name: Commit and push changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add transcripts/
-        git commit -m "Add transcript for video ${{ github.event.inputs.video_url }}" || echo "No changes to commit"
-        git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update for video ${{ github.event.inputs.video_url }}"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+        fi
