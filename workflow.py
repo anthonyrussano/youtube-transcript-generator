@@ -91,9 +91,11 @@ def main():
             print("Failed to save transcript.")
     else:
         print("Could not retrieve video transcript")
-        # Create an empty file to indicate that we attempted to get the transcript
+        # Ensure the directory exists before creating the file
+        os.makedirs("transcripts", exist_ok=True)
         with open("transcripts/.no_transcript", "w") as f:
             f.write(f"No transcript available for video: {args.url}")
+        print("Created .no_transcript file")
 
 if __name__ == "__main__":
     main()
