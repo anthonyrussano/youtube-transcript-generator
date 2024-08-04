@@ -28,6 +28,12 @@ jobs:
       env:
         YOUTUBE_API_KEY: ${{ secrets.API_KEY }}
       run: python workflow.py "${{ github.event.inputs.video_url }}"
+    - name: List directory contents
+      run: |
+        echo "Current directory:"
+        ls -la
+        echo "Transcripts directory:"
+        ls -la transcripts || echo "Transcripts directory does not exist"
     - name: Commit and push changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
